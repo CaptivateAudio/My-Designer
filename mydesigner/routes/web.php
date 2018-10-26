@@ -17,6 +17,10 @@ Route::get('/', function () {
 
 Auth::routes();
 
+/**
+ * Global Routes
+ */
+
 Route::get('/dashboard', 'DashboardController@dashboard')->name('dashboard');
 
 Route::resource('account', 'AccountController')->only([ 'show', 'edit', 'update' ]);
@@ -25,3 +29,13 @@ Route::get('/account',  ['as' => 'account.show', 'uses' => 'AccountController@sh
 Route::get('/edit-account',  ['as' => 'account.edit', 'uses' => 'AccountController@edit']);
 Route::patch('/update-account',  ['as' => 'account.update', 'uses' => 'AccountController@update']);
 
+/**
+ * Admin Routes
+ */
+
+Route::namespace('Admin')
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('users', 'UserController');
+	});
