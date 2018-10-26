@@ -12,12 +12,22 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" type="text/css">
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        
+    <!-- DataTables -->
+    <link href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" defer></script>
 </head>
 <body>
     <div id="app">
@@ -58,8 +68,8 @@
 								
 									<a class="dropdown-item" href="{{ url('/dashboard') }}">{{ __('Dashboard') }}</a>
 									<a class="dropdown-item" href="{{ url('/account') }}">{{ __('Account') }}</a>
-									@if (!Auth::guest() && Auth::user()->admin)
-										<a class="dropdown-item" href="{{ url('/users') }}">{{ __('Users') }}</a>
+									@if (!Auth::guest() && Auth::user()->hasRole('admin'))
+										<a class="dropdown-item" href="{{ route('admin.users.index') }}">{{ __('Users') }}</a>
 									@endif
 									<a class="dropdown-item" href="{{ url('/packages') }}">{{ __('Packages') }}</a>
 									<a class="dropdown-item" href="{{ url('/designs') }}">{{ __('Designs') }}</a>
