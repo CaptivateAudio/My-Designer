@@ -82,8 +82,15 @@
 
                     <p>&nbsp;</p>
 
-
-                    <p><button class="btn btn-primary" type="submit">Save Changes</button></p>
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <button class="btn btn-primary btn-block" type="submit">Save Changes</button>
+                        </div>
+                        <div class="col-sm-2">
+                            <a class="btn btn-secondary" href="{{ route('account.show') }}">Cancel</a>
+                        </div>
+                        <div class="col-sm-7"></div>
+                    </div>
 
                 </form>
         </div>
