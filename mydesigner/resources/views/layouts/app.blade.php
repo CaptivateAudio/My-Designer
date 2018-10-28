@@ -71,7 +71,8 @@
 									@if (!Auth::guest() && Auth::user()->hasRole('admin'))
 										<a class="dropdown-item" href="{{ route('admin.users.index') }}">{{ __('Users') }}</a>
 									@endif
-									<a class="dropdown-item" href="{{ url('/packages') }}">{{ __('Packages') }}</a>
+                                    <a class="dropdown-item" href="{{ route('admin.teams.index') }}">{{ __('Teams') }}</a>
+									<a class="dropdown-item" href="{{ route('admin.packages.index') }}">{{ __('Packages') }}</a>
 									<a class="dropdown-item" href="{{ url('/designs') }}">{{ __('Designs') }}</a>
 									<a class="dropdown-item" href="{{ url('/history') }}">{{ __('History') }}</a>
 								
