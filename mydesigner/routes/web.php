@@ -38,4 +38,6 @@ Route::namespace('Admin')
     ->name('admin.')
     ->group(function () {
         Route::resource('users', 'UserController');
+        Route::resource('teams', 'TeamController');
+        Route::resource('packages', 'PackageController');
 	});
