@@ -18,15 +18,14 @@
                             {{ session('success') }}
                         </div>
                     @endif
-                    
                     <table id="usersTable" class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
-                                <th>Role</th>
                                 <th>Email</th>
-                                <th>Credits</th>
+                                <th>Role</th>
+                                <th>Team</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -35,15 +34,22 @@
                             <tr>
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                                <td>{{ $user->roles()->where('user_id', $user->id)->first()->role_name }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>{{ $user->credits }}</td>
+                                <td>{{ $user->roles()->where('user_id', $user->id)->first()->role_name }}</td>
+                                <td>
+                                    @php
+                                        $team = $user->teams()->where('user_id', $user->id)->first();
+                                        if( $team != null ):
+                                            echo $team->team_name;
+                                        endif
+                                    @endphp
+                                </td>
                                 <td>
                                     <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary">Edit</a>
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                           style="display: inline"
                                           onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_method" value="DELETE">
+                                        {{ method_field('DELETE') }}
                                         {{ csrf_field() }}
                                         <button class="btn btn-outline-danger">Delete</button>
                                     </form>
@@ -51,7 +57,7 @@
                             </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3">No entries found.</td>
+                                    <td colspan="6">No users found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
