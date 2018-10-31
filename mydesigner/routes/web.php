@@ -41,3 +41,15 @@ Route::namespace('Admin')
         Route::resource('teams', 'TeamController');
         Route::resource('packages', 'PackageController');
 	});
+
+Route::get('/admin/user/{id}/styles',  ['as' => 'admin.users.styles', 'uses' => 'Style\StyleController@admin_view']);
+
+/**
+ * User Routes
+ */
+Route::namespace('Style')
+    ->prefix('style')
+    ->name('style.')
+    ->group(function () {
+        Route::resource('settings', 'StyleController');
+	});
