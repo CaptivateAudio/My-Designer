@@ -35,7 +35,7 @@
                             <tr>
                                 <td>{{ $package->id }}</td>
                                 <td>{{ $package->package_name }}</td>
-                                <td>{{ $package->amount }}</td>
+                                <td>{{ number_format($package->amount, 2) }}</td>
                                 <td>
                                     @php
                                         $team = $package->teams()->where('package_id', $package->id)->first();
