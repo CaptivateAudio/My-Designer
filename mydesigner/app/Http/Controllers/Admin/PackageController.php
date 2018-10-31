@@ -50,7 +50,7 @@ class PackageController extends Controller
         $team = Team::findOrFail($request->team);
         $validator = $request->validate([
             'package_name' => 'required|string|max:255|unique:packages',
-            'amount' => 'required|numeric'
+            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/'
         ]);
         
         $packages = Package::create($request->all());
@@ -100,16 +100,16 @@ class PackageController extends Controller
     {
         $package = Package::findOrFail($id);
         
-        if($package->package_name != $request->package_name) {
+        if(strtolower($package->package_name) != strtolower($request->package_name)) {
             $validator = $request->validate([
-                'package_name' => 'required|string|max:255|unique:teams'
+                'package_name' => 'required|string|max:255|unique:packages'
             ]);
-
-            $package->package_name = $request->package_name;
         }
+        
+        $package->package_name = $request->package_name;
 
         $validator = $request->validate([
-            'amount' => 'required|numeric'
+            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/'
         ]);
 
         $package->save();
