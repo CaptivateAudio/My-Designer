@@ -45,7 +45,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label">Role</label>
                             <div class="col-sm-8">
-                                <select name="role" class="form-control">
+                                <select name="role" class="form-control text-capitalize">
                                     @foreach ( $roles as $role )
                                         <option value="{{ $role->id }}" {{ ( $role->id == $user_role_id->id ) ? 'selected' : '' }}>{{ $role->role_name }}</option>
                                     @endforeach
