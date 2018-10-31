@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password',
+        'first_name', 'last_name', 'email', 'password', 'user_status',
     ];
 
     /**
@@ -36,6 +36,11 @@ class User extends Authenticatable
 	public function teams()
 	{
 	  return $this->belongsToMany(Team::class);
+	}
+
+	public function styles()
+	{
+	  return $this->belongsToMany(Style::class);
 	}
 	
 	/**
