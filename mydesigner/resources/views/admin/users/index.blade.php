@@ -35,7 +35,7 @@
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->first_name }} {{ $user->last_name }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>{{ $user->roles()->where('user_id', $user->id)->first()->role_name }}</td>
+                                <td class="text-capitalize">{{ $user->roles()->where('user_id', $user->id)->first()->role_name }}</td>
                                 <td>
                                     @php
                                         $team = $user->teams()->where('user_id', $user->id)->first();
@@ -46,6 +46,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary">Edit</a>
+                                    <a href="{{ route('admin.users.styles', $user->id) }}" class="btn btn-outline-primary">View Styles</a>
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                           style="display: inline"
                                           onsubmit="return confirm('Are you sure?');">
