@@ -3,7 +3,6 @@
 namespace MyDesigner\Http\Controllers\Auth;
 
 use MyDesigner\Models\User;
-use MyDesigner\Models\User;
 use MyDesigner\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
