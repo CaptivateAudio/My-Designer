@@ -58,7 +58,12 @@ class UserController extends Controller
         //$user = User::create($request->all());
 
         $role = Role::findOrFail($request->role);
-        $user = User::create($request->all());
+        
+        $newuser = $request->all();
+        $newuser['password'] = Hash::make($request->password);
+        $newuser['user_status'] = '0';
+        $user = User::create($newuser);
+        
         $user
            ->roles()
            ->attach(Role::where('id', $request->role)->first());
@@ -125,7 +130,7 @@ class UserController extends Controller
         if( ! empty($request->password) ) {
 
             $validator = $request->validate([
-                'password'     => 'min:8|confirmed',
+                'password'     => 'min:8',
             ]);
 
             $user->password = Hash::make($request->password);
