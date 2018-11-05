@@ -58,33 +58,39 @@ class StyleController extends Controller
     public function store(Request $request)
     {
         $current_user_id = Auth::id();
-        
-        $validator = $request->validate([
-            'style_name' => 'required|string|max:255',
-            'type' => 'required|string|max:255|',
-            //'filevalue' => 'required|string|max:255',
-        ]);
-
-        $request_type = 'text';
-        $style_value = $request->filevalue;
 
         if( $request->type == 'url' ){
             $request_type = 'url';
             
             $validator = $request->validate([
+                'style_name' => 'required|string|max:255',
+                'type' => 'required|string|max:255|',
                 'filevalue' => 'required|max:10000|mimes:png,jpeg',
             ]);
             
             $filevalue = $request->file('filevalue');
             $extension = $filevalue->getClientOriginalExtension();
-            Storage::disk('public')->put($filevalue->getFilename().'.'.$extension,  File::get($filevalue));
+            if( !Storage::disk('public')->has($current_user_id.'/styles/') ){
+                Storage::disk('public')->makeDirectory($current_user_id.'/styles/');
+            }
+            Storage::disk('public')->put($current_user_id.'/styles/'.$filevalue->getFilename().'.'.$extension,  File::get($filevalue));
+            //Storage::disk('public')->put($filevalue->getFilename().'.'.$extension,  File::get($filevalue));
 
             $attachment = new Attachment;
             $attachment['mime'] = $filevalue->getClientMimeType();
             $attachment['filename_original'] = $filevalue->getClientOriginalName();
             $attachment['filename'] = $filevalue->getFilename().'.'.$extension;
-            $style_value = $filevalue->getFilename().'.'.$extension;
-            
+            $style_value = time().'-'.$filevalue->getClientOriginalName();
+        }
+        else{
+            $validator = $request->validate([
+                'style_name' => 'required|string|max:255',
+                'type' => 'required|string|max:255|',
+                'value' => 'required|string|max:255',
+            ]);
+
+            $request_type = 'text';
+            $style_value = $request->value;
         }
 
         $user = User::where('id', $current_user_id)->firstOrFail();
@@ -123,7 +129,16 @@ class StyleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = Auth::user();
+        //$current_user_id = $user->id;
+        $style = Style::where('id', $id)->get()->first();
+
+        if( $user->hasRole('user') ){
+            return view('user.styles.edit', compact('id', 'style'));
+        }
+        else{
+            return redirect('/dashboard');
+        }
     }
 
     /**
@@ -135,7 +150,28 @@ class StyleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $style = Style::findOrFail($id);
+
+        if( $style->type == 'url' ) {
+            $validator = $request->validate([
+                'style_name' => 'required|string|max:255',
+            ]);
+
+            $style->style_name = $request->style_name;
+        }
+        else{
+            $validator = $request->validate([
+                'style_name' => 'required|string|max:255',
+                'value' => 'required|string|max:255',
+            ]);
+
+            $style->style_name = $request->style_name;
+            $style->value = $request->value;
+        }
+
+        $style->save();
+
+        return redirect()->route('style.settings.edit', $id)->with('success', 'Style updated successfully.');
     }
 
     /**
@@ -146,7 +182,22 @@ class StyleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $style = Style::findOrFail($id);
+        $current_user_id = Auth::id();
+
+
+        if( $style->type == 'url' ){
+            $get_attachments = $style->attachments()->where('attachments_id', '=', $style->id);
+
+            if( Storage::disk('public')->has($current_user_id.'/styles/'.$get_attachments->first()['filename']) ){
+                Storage::disk('public')->delete($current_user_id.'/styles/'.$get_attachments->first()['filename']);
+            }
+
+            $get_attachments->delete();
+        }
+
+        $style->delete();
+        return redirect()->route('style.settings.index')->with(['success' => 'Style deleted successfully']);
     }
 
     /**
