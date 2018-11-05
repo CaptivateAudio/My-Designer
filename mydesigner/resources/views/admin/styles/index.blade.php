@@ -27,7 +27,6 @@
                                 <th>ID</th>
                                 <th>Style Name</th>
                                 <th>Value</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,12 +34,17 @@
                             <tr>
                                 <td>{{ $style->id }}</td>
                                 <td>{{ $style->style_name }}</td>
-                                <td>{{ $style->value }}</td>
-                                <td></td>
+                                <td>
+                                @if( $style->type == 'text' )
+                                    {{ $style->value }}
+                                @else
+                                    <a href="{{ URL::to('/') }}/uploads/{{ $current_user_id }}/styles/{{ $style->attachments->first()['filename'] }}" target="_blank">{{ $style->value }}</a>
+                                @endif
+                                </td>
                             </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4">No styles found.</td>
+                                    <td colspan="3">No styles found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
