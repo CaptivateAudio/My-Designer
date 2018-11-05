@@ -17,6 +17,16 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="newStyleForm" class="row collapse">
                     <div class="col-md-12">
                         <form method="POST" action="{{ route('style.settings.store') }}" enctype="multipart/form-data">
@@ -32,23 +42,21 @@
                             <div class="form-group row">
                                 <label class="col-sm-4 col-form-label">Type</label>
                                 <div class="col-sm-8">
-                                    <select name="type" class="form-control">
+                                    <select name="type" id="add_user_styles_type" class="form-control">
                                         <option value="text">Simple Text Value</option>
                                         <option value="url">File Upload</option>
                                     </select>
                                 </div>
                             </div>
 
-                            {{-- 
-                            <div class="form-group row">
+                            <div class="form-group row collapse" id="file_row">
                                 <label class="col-sm-4 col-form-label">Value</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="value" class="form-control" value="" />
                                 </div>
                             </div>
-                             --}}
 
-                            <div class="form-group row">
+                            <div class="form-group row collapse" id="filevalue_row">
                                 <label class="col-sm-4 col-form-label">Value</label>
                                 <div class="col-sm-8">
                                     <input type="file" name="filevalue" class="form-control" value="" />
@@ -80,8 +88,23 @@
                             <tr>
                                 <td>{{ $style->id }}</td>
                                 <td>{{ $style->style_name }}</td>
-                                <td>{{ $style->value }}</td>
-                                <td></td>
+                                <td>
+                                @if( $style->type == 'text' )
+                                    {{ $style->value }}
+                                @else
+                                    <a href="{{ URL::to('/') }}/uploads/{{ $current_user_id }}/styles/{{ $style->attachments->first()['filename'] }}" target="_blank">{{ $style->value }}</a>
+                                @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('style.settings.edit', $style->id) }}" class="btn btn-outline-primary">Edit</a>
+                                    <form action="{{ route('style.settings.destroy', $style->id) }}" method="POST"
+                                          style="display: inline"
+                                          onsubmit="return confirm('Are you sure?');">
+                                        {{ method_field('DELETE') }}
+                                        {{ csrf_field() }}
+                                        <button class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                             @empty
                                 <tr>
@@ -95,4 +118,20 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    jQuery(document).ready(function($){
+        $('#add_user_styles_type').on('change', function(){
+            if( $(this).val() == 'text' ){
+                $('#filevalue_row').removeClass('show');
+                $('#file_row').addClass('show');
+            }
+            else{
+                $('#filevalue_row').addClass('show');
+                $('#file_row').removeClass('show');
+            }
+        });
+
+        $('#add_user_styles_type').change();
+    });
+</script>
 @endsection
