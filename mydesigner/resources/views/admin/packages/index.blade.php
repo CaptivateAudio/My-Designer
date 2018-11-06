@@ -38,11 +38,12 @@
                                 <td>{{ number_format($package->amount, 2) }}</td>
                                 <td>
                                     @php
-                                        $team = $package->teams()->where('package_id', $package->id)->first();
-                                        if( $team != null ):
-                                            echo $team->team_name;
-                                        endif
+                                        $assigned_teams = $package->teams()->get()->pluck('team_name')->toArray();
                                     @endphp
+
+                                    @foreach( $assigned_teams as $v )
+                                        {{ $v }}<br>
+                                    @endforeach
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.packages.edit', $package->id) }}" class="btn btn-outline-primary">Edit</a>
