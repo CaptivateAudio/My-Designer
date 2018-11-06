@@ -38,17 +38,15 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label">Team</label>
                             <div class="col-sm-8">
-                                <select name="team" class="form-control">
-                                    @if( $package_team_id == null )
-                                        @foreach ( $teams as $team )
-                                            <option value="{{ $team->id }}">{{ $team->team_name }}</option>
-                                        @endforeach
+                                @foreach ( $teams as $team )
+                                    <div class="custom-control custom-checkbox">
+                                    @if( in_array($team->id, $assigned_teams) )
+                                        <input type="checkbox" name="teams[]" class="custom-control-input" value="{{ $team->id }}" id="team_{{ $team->id }}" checked="checked" /> <label class="custom-control-label" for="team_{{ $team->id }}">{{ $team->team_name }}</label>
                                     @else
-                                        @foreach ( $teams as $team )
-                                            <option value="{{ $team->id }}" {{ ( $team->id == $package_team_id->id ) ? 'selected' : '' }}>{{ $team->team_name }}</option>
-                                        @endforeach
+                                        <input type="checkbox" name="teams[]" class="custom-control-input" value="{{ $team->id }}" id="team_{{ $team->id }}" /> <label class="custom-control-label" for="team_{{ $team->id }}">{{ $team->team_name }}</label>
                                     @endif
-                                </select>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
 
