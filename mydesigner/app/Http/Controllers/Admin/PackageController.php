@@ -47,19 +47,18 @@ class PackageController extends Controller
      */
     public function store(Request $request)
     {
-        $team = Team::findOrFail($request->team);
+        //$team = Team::findOrFail($request->team);
         $validator = $request->validate([
             'package_name' => 'required|string|max:255|unique:packages',
-            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/'
+            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/',
+            'teams' => 'required'
         ]);
-        
+
         $packages = Package::create($request->all());
 
-        $packages
-           ->teams()
-           ->attach(Team::where('id', $request->team)->first());
-
-        return redirect()->route('admin.packages.index')->with('success', 'Package added successfully.');
+        $packages->teams()->sync($request->get('teams'));
+        
+        return redirect()->route('admin.packages.create')->with('success', 'Package added successfully.');
     }
 
     /**
@@ -84,9 +83,9 @@ class PackageController extends Controller
         $package = Package::findOrFail($id);
 
         $teams = Team::all();
-        $package_team_id = $package->teams()->where('package_id', $package->id)->first();
+        $assigned_teams = $package->teams()->get()->pluck('id')->toArray();
 
-        return view('admin.packages.edit', compact('package', 'teams', 'package_team_id'));
+        return view('admin.packages.edit', compact('package', 'teams', 'assigned_teams'));
     }
 
     /**
@@ -109,16 +108,13 @@ class PackageController extends Controller
         $package->package_name = $request->package_name;
 
         $validator = $request->validate([
-            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/'
+            'amount' => 'required|regex:/^\d*(\.\d{1,2})?$/',
+            'teams' => 'required'
         ]);
 
         $package->save();
 
-        $package->teams()->detach();
-
-        $package
-           ->teams()
-           ->attach(Team::where('id', $request->team)->first());
+        $package->teams()->sync($request->get('teams'));
 
         return redirect()->route('admin.packages.edit', $package->id)->with('success', 'Package updated successfully.');
     }
