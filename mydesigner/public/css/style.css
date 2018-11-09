@@ -1,0 +1,70 @@
+
+#admin-menu-back,
+#admin-menu-wrap,
+#admin-menu {
+	width: 280px;
+    background-color: #343a40;
+}
+#admin-menu-back {
+	position: fixed;
+    top: 0;
+    bottom: -120px;
+    z-index: 1;
+}
+#admin-menu-wrap {
+	position: fixed;
+    z-index: 1010;
+    color: #f5f5f5;
+    top: 55px;
+    left: 0;
+    bottom: 0;
+}
+#admin-menu-wrap .admin-sticky-menu {
+	position: -webkit-sticky;
+    position: sticky;
+    top: 55px;
+    height: calc(100vh - 55px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+#admin-menu {
+	padding: 1rem 0;
+}
+#admin-menu .menu-icon {
+    margin: 0;
+    width: 36px;
+    display: inline-block;
+    text-align: center;
+}
+#admin-menu .menu-icon i {
+	font-size: 16px;
+}
+#admin-menu .menu-name {
+	padding: 9px 0;
+}
+#admin-menu ul li a {
+	color: #f5f5f5;
+}
+#admin-menu ul li a:hover {
+	color: #3490dc;
+}
+#admin-menu > ul > li > a:hover {
+	background-color: #23282d;
+}
+
+#admin-content {
+	margin-left: 280px;
+}
+#admin-content-heading {
+	padding: 30px 15px 0;
+}
+#admin-content-wrap {
+	margin: 15px 30px 30px;
+	padding: 30px 15px;
+	background-color: #fff;
+	-webkit-box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    border-top: 1px solid #eee;
+}
