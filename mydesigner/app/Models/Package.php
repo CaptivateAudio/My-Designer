@@ -15,9 +15,13 @@ class Package extends Model
         'package_name', 'amount',
     ];
 
-	//
 	public function teams()
 	{
 	  return $this->belongsToMany(Team::class);
 	}
+
+    public function designs()
+    {
+        return $this->hasMany(Design::class);
+    }
 }
