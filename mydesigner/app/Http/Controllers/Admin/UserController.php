@@ -55,23 +55,17 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        //$user = User::create($request->all());
-
         $role = Role::findOrFail($request->role);
+        $team = Team::findOrFail($request->team);
         
         $newuser = $request->all();
         $newuser['password'] = Hash::make($request->password);
         $newuser['user_status'] = '0';
         $user = User::create($newuser);
-        
-        $user
-           ->roles()
-           ->attach(Role::where('id', $request->role)->first());
 
-        $team = Team::findOrFail($request->team);
-        $user
-           ->teams()
-           ->attach(Team::where('id', $request->team)->first());
+        $user->roles()->sync($request->role);
+
+        $user->teams()->sync($request->team);
 
         return redirect()->route('admin.users.create')->with('success', 'User added successfully.');
     }
@@ -146,17 +140,9 @@ class UserController extends Controller
 
         $user->save();
 
-        $user->roles()->detach();
+        $user->roles()->sync($request->role);
 
-        $user
-           ->roles()
-           ->attach(Role::where('id', $request->role)->first());
-
-        $user->teams()->detach();
-
-        $user
-           ->teams()
-           ->attach(Team::where('id', $request->team)->first());
+        $user->teams()->sync($request->team);
 
         return redirect()->route('admin.users.edit', $user->id)->with('success', 'User updated successfully.');
     }
