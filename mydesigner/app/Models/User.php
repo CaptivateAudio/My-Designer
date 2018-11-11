@@ -45,7 +45,7 @@ class User extends Authenticatable
 
 	public function designs()
 	{
-	  return $this->belongsToMany(Design::class);
+	  return $this->belongsToMany(Design::class)->withPivot('type');
 	}
 
 	public function feedback()
