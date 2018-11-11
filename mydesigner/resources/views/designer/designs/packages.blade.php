@@ -24,12 +24,13 @@
                     <div class="panel-body">
                         <div class="row">
                             @foreach($packages as $package)
-                                <div class="col-md-4">
+                                <div class="col-md-4 mt-4 mb-4">
                                     <div class="card">
                                             <div class="card-header"><strong>{{ $package->package_name }}</strong></div>
 
                                             <div class="card-body">
-                                                <p class="text-center">Price: {{ number_format($package->amount, 2) }}</p>
+                                                <p class="left">Designs for Pick-up Count: {{ $package->designs->where('status', 'request')->count() }}</p>
+                                                <p class="left">In-progress Designs Count: {{ $package->designs->where('status', 'in-progress')->count() }}</p>
 
                                                 <p class="text-center">
                                                     <a href="{{ route('designer.team.designs.requests', $package->id) }}"><button class="btn btn-outline-secondary">View Design Requests</button></a>
