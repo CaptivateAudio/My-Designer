@@ -37,12 +37,11 @@
                             </ul>
                         </div>
                     @endif
-DESIGNER
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
 
-                                <strong>{{ $design->id }} | {{ $design->package()->first()->package_name }}</strong>
+                                <strong>{{ $design->id }}</strong>
                                 <div class="h2 float-right">
                                     @switch($design->status)
                                         @case('request')
@@ -71,15 +70,39 @@ DESIGNER
                                     @endswitch
                                 </div>
                                 <br>
-                                <br>
-                                Details:
-                                <br>
-                                {{ $design->details }}
-                                <br>
-                                <br>
-                                Completion Date:
-                                <br>
-                                {{ $design->completion_date }}
+                                @php
+                                $user = $design->users()->wherePivot('type', 'user');
+                                @endphp
+                                @if( $user->count() )
+                                    @php
+                                        $user_account = $user->first()
+                                    @endphp
+                                    
+                                    <p>Requested By: {{ $user_account->first_name }} {{ $user_account->last_name }}</p>
+                                @endif
+
+                                @php
+                                $manager = $design->users()->wherePivot('type', 'manager');
+                                @endphp
+                                @if( $manager->count() )
+                                    @php
+                                        $manager_account = $manager->first()
+                                    @endphp
+                                    
+                                    <p>Managed By: {{ $manager_account->first_name }} {{ $manager_account->last_name }}</p>
+                                @endif
+
+                                <p>Completion Date: 
+                                @if( $design->completion_date )
+                                    {{ $design->completion_date }}
+                                @else
+                                    n/a
+                                @endif
+                                </p>
+
+                                @if( !empty( $design->details ) )
+                                <p>@php echo nl2br($design->details) @endphp</p>
+                                @endif
                             </div>      
                         </div>
                     </div>
