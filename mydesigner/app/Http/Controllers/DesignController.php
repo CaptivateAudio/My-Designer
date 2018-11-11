@@ -32,17 +32,19 @@ class DesignController extends Controller
 
     public function packages()
     {
-        $team_id = Auth::user()->teams()->first()['id'];
-        $team_name = Auth::user()->teams()->first()['team_name'];
+        $current_user_data = Auth::user();
+
+        $team_id = $current_user_data->teams()->first()['id'];
+        $team_name = $current_user_data->teams()->first()['team_name'];
 
         $packages = Package::whereHas('teams', function($q) use($team_id){
             $q->where('team_id', $team_id);
         })->get();
 
-        if( Auth::user()->hasRole('user') ){
+        if( $current_user_data->hasRole('user') ){
             return view('user.designs.packages', compact( 'team_name', 'team_id', 'packages' ));
         }
-        else if( Auth::user()->hasRole('designer') ){
+        else if( $current_user_data->hasRole('designer') ){
             return view('designer.designs.packages', compact( 'team_name', 'team_id', 'packages' ));
         }
         else{
@@ -57,12 +59,14 @@ class DesignController extends Controller
      */
     public function design_request($package_id)
     {
-        if( Auth::user()->hasRole('user') ){
+        $package = Package::findOrFail($package_id);
 
-            $team_id = Auth::user()->teams()->first()['id'];
-            $team_name = Auth::user()->teams()->first()['team_name'];
+        $current_user_data = Auth::user();
 
-            $package = Package::findOrFail($package_id);
+        if( $current_user_data->hasRole('user') ){
+
+            $team_id = $current_user_data->teams()->first()['id'];
+            $team_name = $current_user_data->teams()->first()['team_name'];
 
             return view('user.designs.new', compact( 'team_name', 'team_id', 'package' ));
         }
@@ -79,19 +83,21 @@ class DesignController extends Controller
      */
     public function store(Request $request)
     {
-        if( Auth::user()->hasRole('user') ){
+        $current_user_data = Auth::user();
+
+        if( $current_user_data->hasRole('user') ){
             $package = Package::findOrFail($request->package_id);
 
             /* Save Design Request */
             $newdesign = $request->all();
-            $newdesign['status'] = 'pending';
+            $newdesign['status'] = 'request';
             $newdesign['details'] = $request->details;
             $newdesign['completion_date'] = null;
             $design = Design::create($newdesign);
             
             /* Save the user id of the user who submitted the request */
             $design
-               ->users()->attach(User::where('id', Auth::id())->first(), ['type' => 'user']);
+               ->users()->attach(User::where('id', $current_user_data->id)->first(), ['type' => 'user']);
 
             /* Save Package ID for the Design */
             $design->package()->associate($package);
@@ -160,18 +166,19 @@ class DesignController extends Controller
 
     public function list_design_request()
     {
-        $current_user_id = Auth::user()->id;
+        $current_user_data = Auth::user();
+        $current_user_id = $current_user_data->id;
         
-        if( Auth::user()->hasRole('user') ){
+        if( $current_user_data->hasRole('user') ){
             $designs = Design::whereHas('users', function($q) use($current_user_id){
-                $q->where('user_id', $current_user_id);
+                $q->where(['user_id' => $current_user_id, 'type' => 'user']);
             })->get();
 
             return view('user.designs.requests', compact( 'current_user_id', 'designs' ));
         }
-        else if( Auth::user()->hasRole('designer') ){
+        else if( $current_user_data->hasRole('designer') ){
             $designs = Design::whereHas('users', function($q) use($current_user_id){
-                $q->where('user_id', $current_user_id);
+                $q->where(['user_id' => $current_user_id, 'type' => 'designer']);
             })->get();
 
             return view('designer.designs.requests', compact( 'current_user_id', 'designs' ));
@@ -183,18 +190,31 @@ class DesignController extends Controller
 
     public function view_design_request($id)
     {
-        $current_user_id = Auth::user()->id;
-        if( Auth::user()->hasRole('user') ){
+        $design = Design::findOrFail($id);
+
+        $current_user_data = Auth::user();
+        $current_user_id = $current_user_data->id;
+
+        if( $current_user_data->hasRole('user') ){
+            $user = $design->users()->wherePivot('type', 'user');
+            if( $user->count() >= 1 ):
+                if( $user->first()->id == $current_user_id ):
+                    return view('user.designs.view', compact( 'design' ));
+                endif;
+            endif;
             
-            $design = Design::where('id', $id)->first();
-
-            return view('user.designs.view', compact( 'design' ));
+            return redirect('/dashboard');
         }
-        else if( Auth::user()->hasRole('designer') ){
+        else if( $current_user_data->hasRole('designer') ){
 
-            $design = Design::where('id', $id)->first();
-
-            return view('designer.designs.view', compact( 'design' ));
+            $designer = $design->users()->wherePivot('type', 'designer');
+            if( $designer->count() >= 1 ):
+                if( $designer->first()->id == $current_user_id ):
+                    return view('designer.designs.view', compact( 'design' ));
+                endif;
+            endif;
+            
+            return redirect('/dashboard');
         }
         else{
             return redirect('/dashboard');
@@ -203,20 +223,20 @@ class DesignController extends Controller
 
     public function team_design_request($package_id)
     {
-        $current_user_id = Auth::user()->id;
+        $current_user_data = Auth::user();
         
-        if( Auth::user()->hasRole('designer') ){
+        if( $current_user_data->hasRole('designer') ){
 
-            $team_id = Auth::user()->teams()->first()['id'];
+            $team_id = $current_user_data->teams()->first()['id'];
 
             $packages_team_check = Team::whereHas('packages', function($q) use($package_id, $team_id){
                 $q->where(['package_id' => $package_id, 'team_id' => $team_id]);
             })->count();
 
             if( $packages_team_check >= 1 ){       
-                $designs = Design::where(['package_id' => $package_id, 'status' => 'pending'])->get();
+                $designs = Design::where(['package_id' => $package_id, 'status' => 'request'])->get();
 
-                return view('designer.designs.requests', compact( 'team_name', 'team_id', 'designs', 'packages_team_check' ));
+                return view('designer.designs.pickup', compact( 'team_name', 'team_id', 'designs', 'packages_team_check' ));
             }
             else{
                 return redirect()->route('user.packages.list');            
@@ -231,9 +251,14 @@ class DesignController extends Controller
     {
         $design = Design::findOrFail($design_id);
 
-        $design->status = 'in-progress';
+        $validator = $request->validate([
+            'completion_date' => 'required|date|date_format:Y-m-d'
+        ]);
 
-        /* Assign Designer to Design Request */
+        $design->status = 'in-progress';
+        $design->completion_date = $request->completion_date;
+
+        /* Assign Self to Design Request */
         $designer = Auth::user();
 
         $design
