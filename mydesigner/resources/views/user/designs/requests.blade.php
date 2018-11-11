@@ -43,7 +43,7 @@
                             @foreach($designs as $design)
                                 <div class="col-md-4 mt-4 mb-4">
                                     <div class="card">
-                                        <div class="card-header"><strong>{{ $design->id }} | {{ $design->package()->first()->package_name }}</strong>
+                                        <div class="card-header"><strong>{{ $design->id }}</strong>
                                             <div class="h2 float-right">
                                                 @switch($design->status)
                                                     @case('request')
@@ -74,8 +74,13 @@
                                         </div>
 
                                         <div class="card-body">
-                                            <p>{{ $design->details }}</p>
+                                            @if( !empty( $design->details ) )
+                                            <p>@php echo nl2br($design->details) @endphp</p>
+                                            @endif
+                                            
+                                            @if( !empty( $design->completion_date ) )
                                             <p>{{ $design->completion_date }}</p>
+                                            @endif
                                             <p class="text-center">
                                                 <a href="{{ route('user.designs.requests.view', $design->id) }}"><button class="btn btn-outline-secondary">View Design Request</button></a>
                                             </p>
