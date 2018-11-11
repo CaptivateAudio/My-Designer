@@ -25,7 +25,7 @@
                     <div class="panel-body">
                         <div class="row">
                             @foreach($packages as $package)
-                                <div class="col-md-4">
+                                <div class="col-md-4 mt-4 mb-4">
                                     <div class="card">
                                             <div class="card-header"><strong>{{ $package->package_name }}</strong></div>
 
