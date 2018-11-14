@@ -62,13 +62,13 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.packages.edit', $package->id) }}" class="btn btn-outline-primary">Edit</a>
-                                        <form action="{{ route('admin.packages.destroy', $package->id) }}" method="POST"
+                                        {{-- <form action="{{ route('admin.packages.destroy', $package->id) }}" method="POST"
                                               style="display: inline"
                                               onsubmit="return confirm('Are you sure?');">
                                             {{ method_field('DELETE') }}
                                             {{ csrf_field() }}
                                             <button class="btn btn-outline-danger">Delete</button>
-                                        </form>
+                                        </form> --}}
                                     </td>
                                 </tr>
                                 @empty
