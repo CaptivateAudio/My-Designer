@@ -62,13 +62,13 @@
                                     <td>
                                         <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary">Edit</a>
                                         <a href="{{ route('admin.users.styles', $user->id) }}" class="btn btn-outline-primary">View Styles</a>
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                        {{-- <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                               style="display: inline"
                                               onsubmit="return confirm('Are you sure?');">
                                             {{ method_field('DELETE') }}
                                             {{ csrf_field() }}
                                             <button class="btn btn-outline-danger">Delete</button>
-                                        </form>
+                                        </form> --}}
                                     </td>
                                 </tr>
                                 @empty
