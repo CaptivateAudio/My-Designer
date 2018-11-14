@@ -38,12 +38,21 @@
                         </div>
                     @endif
 
+                    @php
+                        $in_progress_count = Auth::user()->designs()->where('status', 'in-progress')->count();
+                    @endphp
+                    @if( $in_progress_count >= 3 )
+                        <div class="alert alert-info" role="alert">
+                            <p>You already have {{ $in_progress_count }} in-progress design requests. Please complete it to pick more designs.</p>
+                        </div>
+                    @endif
+
                     <div class="panel-body">
                         <div class="row">
                             @foreach($designs as $design)
                                 <div class="col-md-4 mt-4 mb-4">
                                     <div class="card">
-                                        <div class="card-header"><strong>{{ $design->id }}</strong>
+                                        <div class="card-header"><strong>{{ $design->id }} | {{ $design->package_name }}</strong>
                                             <div class="h2 float-right">
                                                 @switch($design->status)
                                                     @case('request')
@@ -100,14 +109,19 @@
                                             <p>@php echo nl2br($design->details) @endphp</p>
                                             @endif
 
+
                                             <p class="text-center">
-                                                <form action="{{ route('designer.assign.designs.request', $design->id) }}" method="post" style="display: inline"
-                                                      onsubmit="return confirm('Pick Up Design?');">
-                                                    {{ csrf_field() }}
-                                                    <input type="hidden" name="_method" value="PUT">
-                                                    <p>Set Completion Date: <input type="date" name="completion_date"></p>
-                                                    <p><button class="btn btn-outline-primary">Pick Design</button></p>
-                                                </form>
+                                                @if( $in_progress_count >= 3 )
+                                                    <p><button class="btn btn-outline-primary" disabled="disabled">Pick Design</button></p>
+                                                @else
+                                                    <form action="{{ route('designer.assign.designs.request', $design->id) }}" method="post" style="display: inline"
+                                                          onsubmit="return confirm('Pick Up Design?');">
+                                                        {{ csrf_field() }}
+                                                        <input type="hidden" name="_method" value="PUT">
+                                                        <p>Set Completion Date: <input type="date" name="completion_date"></p>
+                                                        <p><button class="btn btn-outline-primary">Pick Design</button></p>
+                                                    </form>
+                                                @endif
                                             </p>
                                         </div>
                                     </div>
