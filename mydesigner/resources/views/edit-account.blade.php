@@ -37,7 +37,7 @@
                     </div>
                 @endif
 
-                <form method="post" action="{{ route('account.update') }}">
+                <form method="post" action="{{ route('account.update') }}" enctype="multipart/form-data">
                         @csrf
                         {{ method_field('patch') }}
 
@@ -79,6 +79,23 @@
                             <div class="card-body">
 
                                 <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Avatar</label>
+                                    <div class="col-sm-9">
+                                        <p>
+                                            @php
+                                                if( ! empty ($user->avatar ) ) :
+                                                    $avatar_url = URL::to('/').'/uploads/'.$current_user_id.'/avatar/'. $user->attachments->first()['filename'];
+                                                else :
+                                                    $avatar_url = asset('images/user.jpg');
+                                                endif;
+                                            @endphp
+                                            <img id="user-avatar" class="img-fluid" src="{{ $avatar_url }}" width="150" height="150">
+                                        </p>
+                                        <p><input id="user-avatar-upload" type="file" name="avatar" class="form-control" value="" /></p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">First Name</label>
                                     <div class="col-sm-9">
                                         <input type="text" name="first_name" class="form-control" value="{{ $user->first_name }}" />
@@ -109,4 +126,21 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function($){
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function (e) {
+                    $('#user-avatar').attr('src', e.target.result);
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#user-avatar-upload").change(function(){ readURL(this); });
+    });
+</script>
 @endsection
