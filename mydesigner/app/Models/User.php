@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password', 'user_status',
+        'first_name', 'last_name', 'email', 'password', 'avatar', 'user_status',
     ];
 
     /**
@@ -51,6 +51,11 @@ class User extends Authenticatable
 	public function feedback()
     {
         return $this->hasMany(Feedback::class);
+    }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachments');
     }
 	
 	/**
