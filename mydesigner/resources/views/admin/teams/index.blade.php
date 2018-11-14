@@ -54,13 +54,13 @@
                                     <td>{{ $team->packages()->where('team_id', $team->id)->count() }}</td>
                                     <td>
                                         <a href="{{ route('admin.teams.edit', $team->id) }}" class="btn btn-outline-primary">Edit</a>
-                                        <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST"
+                                        {{-- <form action="{{ route('admin.teams.destroy', $team->id) }}" method="POST"
                                               style="display: inline"
                                               onsubmit="return confirm('Are you sure?');">
                                             {{ method_field('DELETE') }}
                                             {{ csrf_field() }}
                                             <button class="btn btn-outline-danger">Delete</button>
-                                        </form>
+                                        </form> --}}
                                     </td>
                                 </tr>
                                 @empty
