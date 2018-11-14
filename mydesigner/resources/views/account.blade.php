@@ -35,6 +35,16 @@
                     <div class="card-header">Profile</div>
 
                     <div class="card-body">
+                        <p>
+                            @php
+                                if( ! empty ($user->avatar ) ) :
+                                    $avatar_url = URL::to('/').'/uploads/'.$user->id.'/avatar/'. $user->attachments->first()['filename'];
+                                else :
+                                    $avatar_url = asset('images/user.jpg');
+                                endif;
+                            @endphp
+                            <img class="img-fluid" src="{{ $avatar_url }}" width="150" height="150">
+                        </p>
                         <p>First Name: {{ $user->first_name }}</p>
                         <p>Last Name: {{ $user->last_name }}</p>
                     </div>
