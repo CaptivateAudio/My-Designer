@@ -11,13 +11,17 @@ use MyDesigner\Models\User;
 use MyDesigner\Models\Role;
 use MyDesigner\Models\Package;
 use MyDesigner\Models\Design;
+use MyDesigner\Models\Feedback;
+
+use App\Mail\NotificationEmail;
+use Illuminate\Support\Facades\Mail;
 
 class DesignController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|user|designer');
+        $this->middleware('role:admin|user|designer|manager');
     }
 
     /**
@@ -93,6 +97,8 @@ class DesignController extends Controller
             $newdesign['status'] = 'request';
             $newdesign['details'] = $request->details;
             $newdesign['completion_date'] = null;
+            $newdesign['package_name'] = $package->package_name;
+            $newdesign['amount'] = $package->amount;
             $design = Design::create($newdesign);
             
             /* Save the user id of the user who submitted the request */
@@ -164,6 +170,21 @@ class DesignController extends Controller
         //
     }
 
+    public function admin_list_design_request()
+    {
+        $current_user_data = Auth::user();
+        $current_user_id = $current_user_data->id;
+        
+        if( $current_user_data->hasRole('admin') ){
+            $designs = Design::get();
+
+            return view('admin.designs.requests', compact( 'current_user_id', 'designs' ));
+        }
+        else{
+            return redirect('/dashboard');
+        }
+    }
+
     public function list_design_request()
     {
         $current_user_data = Auth::user();
@@ -183,6 +204,32 @@ class DesignController extends Controller
 
             return view('designer.designs.requests', compact( 'current_user_id', 'designs' ));
         }
+        else if( $current_user_data->hasRole('manager') ){
+            $designs = Design::whereHas('users', function($q) use($current_user_id){
+                $q->where(['user_id' => $current_user_id, 'type' => 'manager']);
+            })->get();
+
+            return view('manager.designs.requests', compact( 'current_user_id', 'designs' ));
+        }
+        else{
+            return redirect('/dashboard');
+        }
+    }
+
+    public function admin_view_design_request($id)
+    {
+        $design = Design::findOrFail($id);
+
+        $current_user_data = Auth::user();
+        $current_user_id = $current_user_data->id;
+
+
+        if( $current_user_data->hasRole('admin') ){
+            $feedback_lists = Feedback::where(['design_id' => $id, 'status' => 'approved'])->latest()->get();
+
+            return view('admin.designs.view', compact( 'design', 'current_user_id', 'feedback_lists' ));
+
+        }
         else{
             return redirect('/dashboard');
         }
@@ -195,22 +242,38 @@ class DesignController extends Controller
         $current_user_data = Auth::user();
         $current_user_id = $current_user_data->id;
 
+
         if( $current_user_data->hasRole('user') ){
+            $feedback_lists = Feedback::where(['design_id' => $id, 'status' => 'approved'])->latest()->get();
+
             $user = $design->users()->wherePivot('type', 'user');
             if( $user->count() >= 1 ):
                 if( $user->first()->id == $current_user_id ):
-                    return view('user.designs.view', compact( 'design' ));
+                    return view('user.designs.view', compact( 'design', 'current_user_id', 'feedback_lists' ));
                 endif;
             endif;
             
             return redirect('/dashboard');
         }
         else if( $current_user_data->hasRole('designer') ){
+            $feedback_lists = Feedback::where(['design_id' => $id])->latest()->get();
 
             $designer = $design->users()->wherePivot('type', 'designer');
             if( $designer->count() >= 1 ):
                 if( $designer->first()->id == $current_user_id ):
-                    return view('designer.designs.view', compact( 'design' ));
+                    return view('designer.designs.view', compact( 'design', 'current_user_id', 'feedback_lists' ));
+                endif;
+            endif;
+            
+            return redirect('/dashboard');
+        }
+        else if( $current_user_data->hasRole('manager') ){
+            $feedback_lists = Feedback::where(['design_id' => $id])->latest()->get();
+
+            $manager = $design->users()->wherePivot('type', 'manager');
+            if( $manager->count() >= 1 ):
+                if( $manager->first()->id == $current_user_id ):
+                    return view('manager.designs.view', compact( 'design', 'current_user_id', 'feedback_lists' ));
                 endif;
             endif;
             
@@ -239,7 +302,7 @@ class DesignController extends Controller
                 return view('designer.designs.pickup', compact( 'team_name', 'team_id', 'designs', 'packages_team_check' ));
             }
             else{
-                return redirect()->route('user.packages.list');            
+                return redirect()->route('user.packages.list');
             }
         }
         else{
@@ -250,6 +313,12 @@ class DesignController extends Controller
     public function assign_design_request(Request $request, $design_id)
     {
         $design = Design::findOrFail($design_id);
+
+        $in_progress_count = Auth::user()->designs()->where('status', 'in-progress')->count();
+
+        if( $in_progress_count >= 3 ){
+            return redirect()->back()->withErrors('You already have '.$in_progress_count.' in-progress design requests. Please complete it to pick more designs.');
+        }
 
         $validator = $request->validate([
             'completion_date' => 'required|date|date_format:Y-m-d'
@@ -266,6 +335,48 @@ class DesignController extends Controller
 
         $design->save();
 
+        /*$objDemo = new \stdClass();
+        $objDemo->demo_one = 'Demo One Value';
+        $objDemo->demo_two = 'Demo Two Value';
+        $objDemo->sender = 'MyDesigner';
+        $objDemo->receiver = 'Podcast Websites';*/
+
+        /*
+        $user = $design->users()->wherePivot('type', 'user');
+        if( $user->count() >= 1 ):
+            $user_account = $user->first();
+            Mail::send('mails.notification', ['name' => $user_account->first_name.' '.$user_account->last_name, 'email' => $user_account->email, 'title' => 'MyDesigner Notification', 'content' => 'Sample Notification.'], function ($message) {
+                $message->to('your.email@gmail.com')->subject('MyDesigner Notification');
+            });
+        endif;
+        */
+ 
+        //Mail::to("podcastwebsites.dev@gmail.com")->send(new DemoEmail($objDemo));
+        //@mail('lesz_03@yahoo.com', 'My Designer Notification', 'New Design Request Assigned to '.$designer->first_name.' '.$designer->last_name);
+
         return redirect()->route('user.designs.requests.view', $design->id)->with('success', 'Design request is now in progress.');
+    }
+
+    public function approve_design_request($design_id)
+    {
+        $design = Design::findOrFail($design_id);
+
+        $current_user_data = Auth::user();
+        $current_user_id = $current_user_data->id;
+
+        if( $current_user_data->hasRole('user') ){
+            $user = $design->users()->wherePivot('type', 'user');
+            if( $user->count() >= 1 ):
+                if( $user->first()->id == $current_user_id ):
+                    $design->status = 'approved';
+
+                    $design->save();
+
+                    return redirect()->route('user.designs.requests.view', $design_id)->with('success', 'Design Request Approved.');
+                endif;
+            endif;
+        }
+
+        return redirect('/dashboard');
     }
 }
