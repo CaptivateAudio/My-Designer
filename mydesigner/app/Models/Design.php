@@ -12,7 +12,7 @@ class Design extends Model
      * @var array
      */
     protected $fillable = [
-        'status', 'details', 'completion_date', 'package_id',
+        'status', 'details', 'completion_date', 'package_id', 'package_name', 'amount',
     ];
 
 	public function users()
