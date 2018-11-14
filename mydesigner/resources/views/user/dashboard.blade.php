@@ -19,7 +19,7 @@
 <div id="admin-content-wrap">
     <div class="container-fluid">
 
-        <div class="row justify-content-center mb-4 mt-4">
+        <div class="row justify-content-center">
             <div class="col-md-12">
 
                 @if (session('status'))
@@ -29,25 +29,27 @@
                 @endif
 
                 <div class="card">
-                    <div class="card-header"><strong>Welcome to your Dashboard!</strong></div>
+                    <div class="card-header"><strong>Quick Links</strong></div>
 
                     <div class="card-body">
 
                         <div class="row align-items-center">
-                            <div class="col-md-2"><img src="https://placeholdit.co//i/150x150?&bg=cccccc&fc=999999&text=PHOTO"></div>
-                            <div class="col-md-10">
-
-                                <h5>Quick Links:</h5>
-
+                            <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <a class="btn btn-primary btn-block" href="{{ url('/') }}"><i class="fas fa-home"></i> HOME</a>
                                     </div>
-                                    <div class="col-md-3">
-                                        <a class="btn btn-primary btn-block" href="{{ url('/account') }}"><i class="fas fa-user"></i> ACCOUNT</a>
+                                    <div class="col-md-2">
+                                        <a class="btn btn-primary btn-block" href="{{ route('account.show') }}"><i class="fas fa-user"></i> ACCOUNT</a>
                                     </div>
-                                    <div class="col-md-3">
-                                        <a class="btn btn-primary btn-block" href="{{ route('style.settings.index') }}"><i class="fas fa-users"></i> USER STYLES</a>
+                                    <div class="col-md-2">
+                                        <a class="btn btn-primary btn-block" href="{{ route('user.packages.list') }}"><i class="fas fa-palette"></i> PACKAGES</a>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <a class="btn btn-primary btn-block" href="{{ route('user.designs.requests') }}"><i class="fas fa-palette"></i> DESIGNS</a>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <a class="btn btn-primary btn-block" href="{{ route('style.settings.index') }}"><i class="fas fa-palette"></i> STYLES</a>
                                     </div>
                                 </div>
                             </div>
@@ -90,22 +92,7 @@
                 </div>
 
             </div>
-
-            <div class="col-md-4">
-
-                <div class="card">
-                    <div class="card-header"><strong>Design Archive</strong></div>
-
-                    <div class="card-body">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-
-                        <div class="row mt-4">
-                            <div class="col-md-12"><a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm btn-block">View All</a></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            
         </div>
 
     </div>
