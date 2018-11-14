@@ -49,8 +49,24 @@
 
                         <div class="container-fluid">
                             <div class="row align-items-center">
-                                <div class="col-md-4"><img src="https://placeholdit.co//i/65x65?&bg=cccccc&fc=999999&text=PHOTO" class="img-fluid rounded-circle"></div>
-                                <div class="col-md-8"><strong>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</strong><br><span class="text-capitalize">{{ Auth::user()->roles->first()->role_name }}</span></div>
+                                <div class="col-md-4">
+
+                                    @php
+                                        if( ! empty (Auth::user()->avatar ) ) :
+                                            $avatar_url = URL::to('/').'/uploads/'.Auth::user()->id.'/avatar/'. Auth::user()->attachments->first()['filename'];
+                                        else :
+                                            $avatar_url = asset('images/user.jpg');
+                                        endif;
+                                    @endphp
+
+                                    <a href="{{ route('account.show') }}"><img src="{{ $avatar_url }}" class="rounded-circle" width="65" height="65"></a>
+
+                                </div>
+                                <div class="col-md-8">
+                                    <a href="{{ route('account.show') }}"><strong>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</strong></a>
+                                    <br>
+                                    <span class="text-capitalize">{{ Auth::user()->roles->first()->role_name }}</span>
+                                </div>
                             </div>
                         </div>
 
