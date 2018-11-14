@@ -43,7 +43,7 @@
                             @foreach($designs as $design)
                                 <div class="col-md-4 mt-4 mb-4">
                                     <div class="card">
-                                        <div class="card-header"><strong>{{ $design->id }}</strong>
+                                        <div class="card-header"><strong>{{ $design->id }} | {{ $design->package_name }}</strong>
                                             <div class="h2 float-right">
                                                 @switch($design->status)
                                                     @case('request')
@@ -74,12 +74,34 @@
                                         </div>
 
                                         <div class="card-body">
+                                            @php
+                                            $designer = $design->users()->wherePivot('type', 'designer');
+                                            @endphp
+                                            @if( $designer->count() )
+                                                @php
+                                                    $designer_account = $designer->first()
+                                                @endphp
+                                                
+                                                <p>Designer: {{ $designer_account->first_name }} {{ $designer_account->last_name }}</p>
+                                            @endif
+
+                                            @php
+                                            $manager = $design->users()->wherePivot('type', 'manager');
+                                            @endphp
+                                            @if( $manager->count() )
+                                                @php
+                                                    $manager_account = $manager->first()
+                                                @endphp
+                                                
+                                                <p>Managed By: {{ $manager_account->first_name }} {{ $manager_account->last_name }}</p>
+                                            @endif
+
                                             @if( !empty( $design->details ) )
                                             <p>@php echo nl2br($design->details) @endphp</p>
                                             @endif
-                                            
+
                                             @if( !empty( $design->completion_date ) )
-                                            <p>{{ $design->completion_date }}</p>
+                                            <p>Completion Date: {{ $design->completion_date }}</p>
                                             @endif
                                             <p class="text-center">
                                                 <a href="{{ route('user.designs.requests.view', $design->id) }}"><button class="btn btn-outline-secondary">View Design Request</button></a>
