@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|designer|user');
+        $this->middleware('role:admin|designer|manager|user');
     }
 
     /**
@@ -26,6 +26,9 @@ class DashboardController extends Controller
 		else if ( $request->user()->hasRole('designer')) {
 			return view('designer/dashboard');
 		}
+        else if ( $request->user()->hasRole('manager')) {
+            return view('manager/dashboard');
+        }
 		else {
 			return view('user/dashboard');
 		}
