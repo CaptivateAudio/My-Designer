@@ -17,7 +17,7 @@ class StyleController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|user|designer');
+        $this->middleware('role:admin|user|designer|manager');
     }
 
     /**
@@ -65,7 +65,7 @@ class StyleController extends Controller
             $validator = $request->validate([
                 'style_name' => 'required|string|max:255',
                 'type' => 'required|string|max:255|',
-                'filevalue' => 'required|max:10000|mimes:png,jpeg',
+                'filevalue' => 'required|max:10000|mimes:jpeg,png,jpg',
             ]);
             
             $filevalue = $request->file('filevalue');
@@ -217,5 +217,13 @@ class StyleController extends Controller
             return redirect('/dashboard');
         }
 
+    }
+
+    public function user_view($user_id)
+    {
+        $user = User::findOrFail($user_id);
+        $styles = Style::where('users_id', $user_id)->get();
+
+        return view('user.styles.view', compact('user', 'styles'));
     }
 }
