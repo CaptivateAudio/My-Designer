@@ -54,7 +54,7 @@
                                     @if( $style->type == 'text' )
                                         {{ $style->value }}
                                     @else
-                                        <a href="{{ URL::to('/') }}/uploads/{{ $current_user_id }}/styles/{{ $style->attachments->first()['filename'] }}" target="_blank">{{ $style->value }}</a>
+                                        <a href="{{ URL::to('/') }}/uploads/{{ $user->id }}/styles/{{ $style->attachments->first()['filename'] }}" target="_blank">{{ $style->value }}</a>
                                     @endif
                                     </td>
                                 </tr>
