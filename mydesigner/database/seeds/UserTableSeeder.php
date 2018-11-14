@@ -16,6 +16,7 @@ class UserTableSeeder extends Seeder
         $role_admin = Role::where('role_name', 'admin')->first();
 		$role_user  = Role::where('role_name', 'user')->first();
 		$role_designer  = Role::where('role_name', 'designer')->first();
+		$role_manager  = Role::where('role_name', 'manager')->first();
 
 		$admin = new User();
 		$admin->first_name = 'Lester';
@@ -43,5 +44,14 @@ class UserTableSeeder extends Seeder
 		$designer->user_status = '0';
 		$designer->save();
 		$designer->roles()->attach($role_designer);
+
+		$manager = new User();
+		$manager->first_name = 'Podcast Websites';
+		$manager->last_name = 'Dev';
+		$manager->email = 'podcastwebsites.dev@gmail.com';
+		$manager->password = Hash::make('secret');
+		$manager->user_status = '0';
+		$manager->save();
+		$manager->roles()->attach($role_manager);
     }
 }
