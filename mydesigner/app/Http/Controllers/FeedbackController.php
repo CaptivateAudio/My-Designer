@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
+use Illuminate\Support\Facades\Notification;
+use MyDesigner\Notifications\NewFeedback;
+use MyDesigner\Notifications\ApprovedFeedback;
+use MyDesigner\Notifications\ApprovedDesignRequest;
+
 use MyDesigner\Models\User;
 use MyDesigner\Models\Design;
 use MyDesigner\Models\Feedback;
@@ -140,6 +145,24 @@ class FeedbackController extends Controller
             $feedback->attachments()->save($attachment);
         }
 
+        if( $current_user_data->hasRole('designer') ){
+        }
+        else{    
+            /* Array of data to use to notification message */
+            $emailContent = array(
+                'heading' => 'New feedback from '.$current_user_data->first_name.' '.$current_user_data->last_name.' on the design request '.$design->package_name.' has been posted.',
+                'button_text' => 'View design request',
+                'button_url' => route('user.designs.requests.view', $design->id),
+            );
+
+            $users = $design->users()->get();
+            if( $users->count() >= 1 ):
+                foreach( $users as $user ){
+                    Notification::send($user, new NewFeedback($emailContent));
+                }
+            endif;
+        }
+
         return redirect()->route('user.designs.requests.view', $design_id)->with('success', 'Message submitted.');
     }
 
@@ -159,10 +182,30 @@ class FeedbackController extends Controller
 
                     $feedback->save();
 
+                    /* Array of data to use to notification message */
+                    $designer = $design->users()->wherePivot('type', 'designer');
+                    if( $designer->count() >= 1 ):
+                        $designer = $designer->first();
+
+                        $emailContent = array(
+                            'heading' => 'New feedback from '.$designer->first_name.' '.$designer->last_name.' on the design request '.$design->package_name.' has been posted.',
+                            'button_text' => 'View design request',
+                            'button_url' => route('user.designs.requests.view', $design->id),
+                        );
+
+                        $users = $design->users()->get();
+                        if( $users->count() >= 1 ):
+                            foreach( $users as $user ){
+                                Notification::send($user, new NewFeedback($emailContent));
+                            }
+                        endif;
+                    endif;
+
                     return redirect()->route('user.designs.requests.view', $design_id)->with('success', 'Feedback Approved.');
                 endif;
             endif;
         }
+
 
         return redirect('/dashboard');
     }
