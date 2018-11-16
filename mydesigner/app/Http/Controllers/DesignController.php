@@ -5,6 +5,10 @@ namespace MyDesigner\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
+use MyDesigner\Notifications\NewDesignRequest;
+use MyDesigner\Notifications\PickupDesignRequest;
+use MyDesigner\Notifications\ApprovedDesignRequest;
 
 use MyDesigner\Models\Team;
 use MyDesigner\Models\User;
@@ -12,9 +16,6 @@ use MyDesigner\Models\Role;
 use MyDesigner\Models\Package;
 use MyDesigner\Models\Design;
 use MyDesigner\Models\Feedback;
-
-use App\Mail\NotificationEmail;
-use Illuminate\Support\Facades\Mail;
 
 class DesignController extends Controller
 {
@@ -117,6 +118,21 @@ class DesignController extends Controller
                ->users()->attach($account_manager, ['type' => 'manager']);
             
             $design->save();
+
+            /* Admin User */
+            $admin_user = User::findOrFail(1);
+
+            /* Array of data to use to notification message */
+            $emailContent = array(
+                'heading' => 'A new design request has been sent.',
+                'user_name' => $current_user_data->first_name.' '.$current_user_data->last_name,
+                'package_name' => $package->package_name,
+                'button_text' => 'View full details',
+                'button_url' => route('user.designs.requests.view', $design->id),
+            );
+
+            Notification::send($admin_user, new NewDesignRequest($emailContent));
+            Notification::send($account_manager, new NewDesignRequest($emailContent));
 
             return redirect()->route('user.designs.requests.view', $design->id)->with('success', 'Design request successfully submitted.');
         }
@@ -335,24 +351,26 @@ class DesignController extends Controller
 
         $design->save();
 
-        /*$objDemo = new \stdClass();
-        $objDemo->demo_one = 'Demo One Value';
-        $objDemo->demo_two = 'Demo Two Value';
-        $objDemo->sender = 'MyDesigner';
-        $objDemo->receiver = 'Podcast Websites';*/
+        /* Array of data to use to notification message */
+        $emailContent = array(
+            'heading' => $design->package_name.' design request has been picked up and now in-progress.',
+            'designer' => $designer->first_name.' '.$designer->last_name,
+            'completion_date' => $design->completion_date,
+            'button_text' => 'View design request',
+            'button_url' => route('user.designs.requests.view', $design->id),
+        );
 
-        /*
+        /* Get User */
         $user = $design->users()->wherePivot('type', 'user');
         if( $user->count() >= 1 ):
-            $user_account = $user->first();
-            Mail::send('mails.notification', ['name' => $user_account->first_name.' '.$user_account->last_name, 'email' => $user_account->email, 'title' => 'MyDesigner Notification', 'content' => 'Sample Notification.'], function ($message) {
-                $message->to('your.email@gmail.com')->subject('MyDesigner Notification');
-            });
+            Notification::send($user->first(), new PickupDesignRequest($emailContent));
         endif;
-        */
- 
-        //Mail::to("podcastwebsites.dev@gmail.com")->send(new DemoEmail($objDemo));
-        //@mail('lesz_03@yahoo.com', 'My Designer Notification', 'New Design Request Assigned to '.$designer->first_name.' '.$designer->last_name);
+
+        /* Get Manager */
+        $manager = $design->users()->wherePivot('type', 'manager');
+        if( $manager->count() >= 1 ):
+            Notification::send($manager->first(), new PickupDesignRequest($emailContent));
+        endif;
 
         return redirect()->route('user.designs.requests.view', $design->id)->with('success', 'Design request is now in progress.');
     }
@@ -371,6 +389,20 @@ class DesignController extends Controller
                     $design->status = 'approved';
 
                     $design->save();
+
+                    /* Array of data to use to notification message */
+                    $emailContent = array(
+                        'heading' => 'Design request '.$design->package_name.' has been approved by '.$current_user_data->first_name.' '.$current_user_data->last_name.'.',
+                        'button_text' => 'View design request',
+                        'button_url' => route('user.designs.requests.view', $design->id),
+                    );
+
+                    $users = $design->users()->get();
+                    if( $users->count() >= 1 ):
+                        foreach( $users as $user ){
+                            Notification::send($user, new ApprovedDesignRequest($emailContent));
+                        }
+                    endif;
 
                     return redirect()->route('user.designs.requests.view', $design_id)->with('success', 'Design Request Approved.');
                 endif;
