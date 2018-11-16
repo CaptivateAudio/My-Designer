@@ -35,4 +35,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'postmark' => [
+        'secret' => env('POSTMARK_SECRET'),    
+    ],
+
 ];
