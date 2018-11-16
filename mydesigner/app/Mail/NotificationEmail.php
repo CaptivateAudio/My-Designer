@@ -36,7 +36,8 @@ class NotificationEmail extends Mailable
     public function build()
     {
         //return $this->view('view.name');
-        return $this->from('hana@podcastwebsites.com')
+        return $this->from('lester@podcastwebsites.com')
+                    ->subject('Sample')
                     ->view('mails.notification')
                     ->text('mails.notification_plain')
                     ->with(
